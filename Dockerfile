@@ -1,4 +1,4 @@
-# Use a Java base image
+# Use a lightweight Java base image
 FROM openjdk:17-jdk-slim
 
 # Set the working directory
@@ -11,10 +11,10 @@ RUN apt-get update && apt-get install -y maven
 COPY . .
 
 # Build the project with Maven
-RUN mvn clean install
+RUN mvn clean package
 
-# Copy the generated JAR file (use the correct name)
-COPY target/postgres-demo-0.0.1-SNAPSHOT.jar app.jar
+# Copy the generated JAR file dynamically (ensuring correct file name)
+COPY target/*.jar app.jar
 
 # Run the JAR file
 CMD ["java", "-jar", "app.jar"]
