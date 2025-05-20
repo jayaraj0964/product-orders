@@ -1,20 +1,22 @@
-# Use a lightweight Java base image
-FROM openjdk:17-jdk-slim
-
-# Set the working directory
+# Stage 1: Build the application with Maven
+FROM maven:3.8.8-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# Install Maven to build the project
-RUN apt-get update && apt-get install -y maven
-
-# Copy the project files
+# Copy all project files
 COPY . .
 
-# Build the project with Maven
+# Build the application
 RUN mvn clean package
 
-# Copy the generated JAR file dynamically (ensuring correct file name)
-COPY target/*.jar app.jar
+# Stage 2: Run the built application
+FROM openjdk:17-jdk-slim
+WORKDIR /app
 
-# Run the JAR file
+# Copy the generated JAR file from the build stage
+COPY --from=build /app/target/*.jar app.jar
+
+# Expose the default port
+EXPOSE 8080
+
+# Command to run the application
 CMD ["java", "-jar", "app.jar"]
